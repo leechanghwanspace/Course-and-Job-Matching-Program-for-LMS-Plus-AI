@@ -34,26 +34,26 @@ def classify_job(content):
         "자동화 시스템", "모바일 앱 개발", "스마트 기술", "블록체인"
     ]
     result = classifier(content, candidate_labels)
-    # 상위 3개의 일치율이 높은 직무와 점수를 반환
+    # 상위 3개의 일치율이 높은 직무를 반환
     top_jobs = result['labels'][:3]
-    top_scores = result['scores'][:3]
-    return top_jobs, top_scores
+    top_score = result['scores'][0]
+    return top_jobs, top_score
 
 # 최종 결과를 저장할 데이터프레임 생성
-output_data = pd.DataFrame(columns=['과목코드', '과목명', '학점', '직무1', '직무2', '직무3', '일치율1', '일치율2', '일치율3'])
+output_data = pd.DataFrame(columns=['과목코드', '과목명', '학점', '직무1', '직무2', '직무3', '일치율'])
 
 # 과목코드별로 그룹화하여 결과 집계
 for code, group in data.groupby('과목코드'):
     course_name = group['과목명'].iloc[0]
-    total_scores = [0, 0, 0]
+    top_score = 0
     matched_jobs = [None, None, None]
     
     for _, row in group.iterrows():
         # 주차별 학습 내용을 바탕으로 직무 분류
-        jobs, scores = classify_job(row['주차별 학습내용'])
-        # 상위 3개의 직무와 점수를 저장
+        jobs, score = classify_job(row['주차별 학습내용'])
+        # 상위 3개의 직무와 최고 일치율을 저장
         matched_jobs = jobs
-        total_scores = [f"{score:.3%}" for score in scores]
+        top_score = f"{score:.3%}"
 
     # 결과 데이터를 output_data에 추가
     new_row = {
@@ -63,12 +63,11 @@ for code, group in data.groupby('과목코드'):
         '직무1': matched_jobs[0],
         '직무2': matched_jobs[1],
         '직무3': matched_jobs[2],
-        '일치율1': total_scores[0],
-        '일치율2': total_scores[1],
-        '일치율3': total_scores[2]
+        '일치율': top_score
     }
     output_data = pd.concat([output_data, pd.DataFrame([new_row])], ignore_index=True)
 
 # 결과 CSV 파일로 저장
 output_data.to_csv(output_file, index=False, encoding='utf-8-sig')
 print(f"결과가 {output_file}에 저장되었습니다.")
+
