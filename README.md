@@ -20,3 +20,11 @@
 ### 저장할 폴더 및 파일 경로 설정
 `output_folder = r"data/output"  ` <br>
 `output_file = os.path.join(output_folder, "저장할 파일명.csv")`
+<br>
+<br>
+
+
+---
+
+### 관련 레포지토리
+[RedPenLMS-BE](https://github.com/leechanghwanspace/RedPenLMS-BE)
